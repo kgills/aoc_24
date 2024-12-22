@@ -1,5 +1,6 @@
 import csv
 import argparse
+import re
 
 parser = argparse.ArgumentParser(
                     prog='solve',
@@ -7,87 +8,46 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument('input', help="Input CSV file.")
 parser.add_argument('-p2','--part2', help="Sove for part 2.", action='store_true')
+parser.add_argument('-v','--verbose', help="Verbose output", action='store_true')
 
 args = parser.parse_args()
 print(args)
 
-def safe (row):
+if args.verbose:
+    def kprint(*args):
+        # Print each argument separately so caller doesn't need to
+        # stuff everything to be printed into a single string
+        for arg in args:
+           print(arg,end="")
+        print()
+else:   
+    kprint = lambda *a: None      # do-nothing function
 
-    # print(row)
+# Open the input file
+textFile = open(args.input, "r")
+inputString = textFile.read()
 
-    safe = True
+kprint("inputString: ",inputString)
 
-    # Convert row to int
-    row = [int(item) for item in row]
+sumPairs = 0
 
-    # Determine the direction
-    # 0: uninit
-    # -1: down
-    #  1: up
-    direction = 0
-    index = 0
-    for level in row[:-1]:
-        nextLevel = row[index+1]
-        index = index+1
+# Split on "mul(", skip the first element
+for item in inputString.split("mul(")[1:]:
+    # kprint(item)
 
-        if(level == nextLevel):
-            direction = 0
-            break
-        elif(level > nextLevel):
-            direction = -1
-            break
-        else:
-            direction = 1
-            break
+    # \d{1,3},\d{1,3}\)
+    match = re.match(r'\d{1,3},\d{1,3}\)', item)
+    if(match):
 
-    # print(direction)
+        # Remove the ")"
+        pair = match.group(0)[:-1]
+        kprint(pair)
 
-    # Determine if the row is safe
-    index = 0
-    for level in row[:-1]:
-        nextLevel = row[index+1]
-        index = index+1
+        leftOp = int(pair.split(",")[0])
+        rightOp = int(pair.split(",")[1])
 
-        if(level == nextLevel):
-            safe = False
+        sumPairs = sumPairs + leftOp*rightOp
 
-        if(direction == 1):
-            if(nextLevel > level+3):
-                safe = False
-            if(nextLevel < level):
-                safe = False
-
-        else:
-            if(nextLevel < level-3):
-                safe = False
-            if(nextLevel > level):
-                safe = False
-
-    # print(safe)
-
-    return(safe)
+print(sumPairs)
 
 
-
-with open(args.input) as csvfile:
-    spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-    safeCount = 0
-    for row in spamreader:
-        if(safe(row)):
-            safeCount = safeCount+1
-        elif(args.part2):
-            # Remove single element from row, determine if it works
-            for index in range(len(row)):
-
-                tempRow = list(row)
-                del tempRow[index]
-
-                if(safe(tempRow)):
-                    safeCount = safeCount+1
-                    break
-
-            
-    print(safeCount)
-        
-
- 
