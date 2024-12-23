@@ -78,10 +78,20 @@ def testOrder(update):
     return correctOrder
 
 def insertPage(update, page):
-    if(update == [])
+    if(update == []):
         update.append(page)
-        return
-    
+        return update
+
+
+    for index in range(0,len(update)+1):
+        newUpdate = list(update)
+        newUpdate.insert(index, page)
+        if(testOrder(newUpdate)):
+            return newUpdate
+
+    print("Failed to add page", update, page)
+    sys.exit(1)
+
 
 updateSum = 0
 for update in updates:
@@ -92,7 +102,9 @@ for update in updates:
             newUpdate = []
 
             for index in range(0,len(update)):
-                newUpdate = insertPage(newUpdate,udpate[index])
+                newUpdate = insertPage(newUpdate,update[index])
+
+            updateSum = updateSum + int(newUpdate[math.floor(len(newUpdate)/2)])
     else:
         if correctOrder:
             kprint(update)
