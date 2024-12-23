@@ -2,6 +2,7 @@ import csv
 import argparse
 import re
 import numpy as np
+import sys
 
 parser = argparse.ArgumentParser(
                     prog='solve',
@@ -24,8 +25,24 @@ if args.verbose:
 else:   
     kprint = lambda *a: None      # do-nothing function
 
-def get_2d_list_slice(matrix, start_row, end_row, start_col, end_col):
-    return [row[start_col:end_col] for row in matrix[start_row:end_row]]
+def getWord(inputArray, row, col, rowFactor, colFactor, wordLen):
+    retWord = ""
+    for index in range(0, wordLen):
+        retWord = retWord + inputArray[row+index*rowFactor, col+index*colFactor]
+
+    kprint(retWord)
+    return retWord
+
+def getCount(inputArray, row, col, inputStr):
+    count = 0
+    for rowFactor in range(-1,2):
+        for colFactor in range(-1,2):
+            if(rowFactor == 0 and colFactor == 0):
+                continue
+            if(getWord(inputArray, row,col,rowFactor,colFactor, len(inputStr)) == inputStr):
+                count = count+1
+    return count
+
 
 # Open the input file
 textFile = open(args.input, "r")
@@ -43,7 +60,21 @@ kprint(npArray)
 kprint()
 
 # Pad the array to get the wrap
-npArray = np.pad(npArray,3,mode='wrap')
+WORD_SEARCH="XMAS"
+PAD_LEN=len(WORD_SEARCH)-1
+npArray = np.pad(npArray,PAD_LEN,mode='constant')
 kprint(npArray)
 kprint()
+
+sumXmas = 0
+
+for row in range(PAD_LEN, npArray.shape[0]-PAD_LEN):
+        for col in range(PAD_LEN, npArray.shape[1]-PAD_LEN):
+            if(npArray[row,col] == WORD_SEARCH[0]):
+                kprint("row: ",row," col: ",col)
+                sumXmas = sumXmas + getCount(npArray,row,col,WORD_SEARCH)
+
+print(sumXmas)
+
+
 
