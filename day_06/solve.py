@@ -5,6 +5,7 @@ import numpy as np
 import sys
 from collections import defaultdict
 import math
+import bisect
 
 parser = argparse.ArgumentParser(
                     prog='solve',
@@ -86,7 +87,9 @@ def advanceGuard(labMap, position, direction):
     return (True,position,direction,labMap)
 
 
-
+def in_sorted_list(elem, sorted_list):
+    i = bisect.bisect_left(sorted_list, elem)
+    return i != len(sorted_list) and sorted_list[i] == elem
 
 if args.part2:
 
@@ -134,14 +137,15 @@ if args.part2:
                     posDir = [position[0],position[1],direction[0],direction[1]]
 
                     # If we stay on the map and are in a position with the same direction, we're in a loop
-                    if validGuard and posDir in positionDirectionLog:
+                    if validGuard and in_sorted_list(posDir,positionDirectionLog):
                         loopCount = loopCount + 1
                         kprint(labMap)
                         kprint(positionDirectionLog)
                         break
 
                     # Log this position and direction
-                    positionDirectionLog.append(posDir)
+                    # positionDirectionLog.append(posDir)
+                    bisect.insort(positionDirectionLog, posDir)
 
                 # Remove the temp obstacle
                 labMap[(row,col)] = "X"
