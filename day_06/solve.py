@@ -48,7 +48,7 @@ startPosition = (int(startPosition[0][0]),int(startPosition[1][0]))
 startDirection = [-1,0]
 
 # Replace start position with "X"
-labMap[startPosition] = "X"
+labMap[startPosition] = "^"
 kprint(startPosition)
 kprint(startDirection)
 kprint(labMap)
@@ -92,10 +92,26 @@ if args.part2:
 
     loopCount = 0
 
+    # Save the original path
+    # Advance the while he's still in the map
+    validGuard = True
+    position = startPosition
+    direction = startDirection
+
+    while validGuard:
+        # Save the guard's path
+        labMap[position] = "X"
+
+        # Advance the guard
+        validGuard,position,direction,labMap = advanceGuard(labMap,position,direction)
+
+
     # Add one obstacle
     for row in range(0,labMap.shape[0]):
         for col in range(0,labMap.shape[1]):
-            if(labMap[(row,col)]) == ".":
+
+            # Only add obstacles to the guard's original path
+            if(labMap[(row,col)]) == "X":
                 print(row," ",col)
                 # Add a temp obstacle
                 labMap[(row,col)] = "#"
@@ -128,7 +144,7 @@ if args.part2:
                     positionDirectionLog.append(posDir)
 
                 # Remove the temp obstacle
-                labMap[(row,col)] = "."
+                labMap[(row,col)] = "X"
 
     print(loopCount)
 
@@ -138,6 +154,9 @@ else:
     validGuard = True
     position = startPosition
     direction = startDirection
+
+    labMap[startPosition] = "X"
+
 
     while validGuard:
         # Save the guard's path
