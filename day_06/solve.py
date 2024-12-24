@@ -44,6 +44,7 @@ kprint(labMap)
 
 # Find the starting position
 startPosition = np.where(labMap == "^")
+startPosition = (int(startPosition[0][0]),int(startPosition[1][0]))
 startDirection = [-1,0]
 
 # Replace start position with "X"
@@ -53,9 +54,6 @@ kprint(startDirection)
 kprint(labMap)
 
 def advanceGuard(labMap, position, direction):
-
-    # Save the guard's path
-    labMap[position] = "X"
 
     kprint(position)
     kprint(direction)
@@ -88,15 +86,67 @@ def advanceGuard(labMap, position, direction):
     return (True,position,direction,labMap)
 
 
-# Advance the while he's still in the map
-validGuard = True
-position = (int(startPosition[0][0]),int(startPosition[1][0]))
-direction = startDirection
 
-while validGuard:
-    validGuard,position,direction,labMap = advanceGuard(labMap,position,direction)
 
-# Count the number of "X" in the map
-print(np.count_nonzero(labMap == "X"))
+if args.part2:
+
+    loopCount = 0
+
+    # Add one obstacle
+    for row in range(0,labMap.shape[0]):
+        for col in range(0,labMap.shape[1]):
+            if(labMap[(row,col)]) == ".":
+                print(row," ",col)
+                # Add a temp obstacle
+                labMap[(row,col)] = "#"
+
+                # Advance the while he's still in the map
+                validGuard = True
+                position = startPosition
+                direction = startDirection
+
+                # Save a list of positions and directions
+                positionDirectionLog = []
+                positionDirectionLog.append([position[0],position[1],direction[0],direction[1]])
+                kprint(positionDirectionLog)
+
+                while validGuard:
+
+                    # Advance the guard
+                    validGuard,position,direction,labMap = advanceGuard(labMap,position,direction)
+
+                    posDir = [position[0],position[1],direction[0],direction[1]]
+
+                    # If we stay on the map and are in a position with the same direction, we're in a loop
+                    if validGuard and posDir in positionDirectionLog:
+                        loopCount = loopCount + 1
+                        kprint(labMap)
+                        kprint(positionDirectionLog)
+                        break
+
+                    # Log this position and direction
+                    positionDirectionLog.append(posDir)
+
+                # Remove the temp obstacle
+                labMap[(row,col)] = "."
+
+    print(loopCount)
+
+else:
+
+    # Advance the while he's still in the map
+    validGuard = True
+    position = startPosition
+    direction = startDirection
+
+    while validGuard:
+        # Save the guard's path
+        labMap[position] = "X"
+
+        # Advance the guard
+        validGuard,position,direction,labMap = advanceGuard(labMap,position,direction)
+
+    # Count the number of "X" in the map
+    print(np.count_nonzero(labMap == "X"))
     
 
