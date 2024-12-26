@@ -110,7 +110,9 @@ for startingPoint in range(0, len(startingPoints[0])):
     kprint(score)
 
     # Remove duplicates
-    score = list(dict.fromkeys(score))
+    if(not args.part2):
+        score = list(dict.fromkeys(score))
+
     # Count the number of entries
     score = len(score)
 
