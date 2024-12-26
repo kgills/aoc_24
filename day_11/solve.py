@@ -44,35 +44,76 @@ for line in textFile:
 # Create the list of stones
 kprint(stones)
 
+scoreDict = {}
+
+def checkDict(blink, stone):
+    key = str(stone)+"_"+str(blink)
+    return scoreDict.get(key)
+
+def addDict(blink,stone,score):
+    # Create a compound key, stone_blink
+    key = str(stone)+"_"+str(blink)
+    scoreDict[key] = score
+
 def getScore(blink, stone):
 
     # Reached the max depth
     if(blink == args.blink):
         return 1
 
+    # Check to see if the score is in the dictionary
+    score = checkDict(blink, stone)
+    if(score != None):
+        return score
+
     # Turn a 0 into a 1
     if(stone == 0):
-        return getScore(blink+1, 1)
+        # Check to see if the score is in the dictionary
+        score = checkDict(blink+1, 1)
+        if(score != None):
+            return score
 
-    # If number of digits is even
+        # Calculate the score
+        score = getScore(blink+1, 1)
+        addDict(blink+1, 1, score)
+        return score
+
+    # Check to see if this stone has even digits
     digits = int(math.log10(stone))+1
-
     kprint(digits)
     if digits % 2 == 0:
         divisor = pow(10,int(digits/2))
         leftHalf = int(stone / divisor)
         rightHalf = stone - (leftHalf*divisor)
 
-        kprint("stone    : ", stone)
-        kprint("leftHalf : ", leftHalf)
-        kprint("rightHalf: ", rightHalf)
+        # kprint("stone    : ", stone)
+        # kprint("leftHalf : ", leftHalf)
+        # kprint("rightHalf: ", rightHalf)
 
-        score = getScore(blink+1, leftHalf) + getScore(blink+1, rightHalf)
+        # Check to see if the score is in the dictionary
+        leftScore = checkDict(blink+1, leftHalf)
+        if(leftScore == None):
+            leftScore = getScore(blink+1, leftHalf)
+            addDict(blink+1, leftHalf, leftScore)
+
+        rightScore = checkDict(blink+1, rightHalf)
+        if(rightScore == None):
+            rightScore = getScore(blink+1, rightHalf)
+            addDict(blink+1, rightHalf, rightScore)
+
+        score = leftScore + rightScore
         return score
     
     # Number of digits is odd
+
+    # Check to see if the score is in the dictionary
+    score = checkDict(blink+1, stone*2024)
+    if(score != None):
+        return score
+
     return getScore(blink+1, stone*2024)
 
+# Iterate through all of the starting stones
 score = 0
 for stone in stones:
     score = score + getScore(0, stone)
