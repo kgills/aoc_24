@@ -104,6 +104,124 @@ def addPlants(visited, plantGroup):
         visited[plant] = 1
     return visited
 
+def getGroups(matchList):
+
+    if matchList == []:
+        return 0
+
+    groups = 1
+
+    for index in range(1,len(matchList)):
+        if matchList[index] != matchList[index-1]+1:
+            groups = groups + 1
+
+    return groups
+
+
+def getSides(plantGroup):
+
+    sides = 0
+
+    plant = gardenMap[plantGroup[0][0],plantGroup[0][1]]
+
+    # Get the min/max row/col
+    minRow = 9999999
+    maxRow = 0
+    minCol = 9999999
+    maxCol = 0
+
+    for tempPlant in plantGroup:
+        if tempPlant[0] < minRow: minRow = tempPlant[0]
+        if tempPlant[1] < minCol: minCol = tempPlant[1]
+        if tempPlant[0] > maxRow: maxRow = tempPlant[0]
+        if tempPlant[1] > maxCol: maxCol = tempPlant[1]
+
+    # Start at the min row, sweep across to the max row
+    # Find elements that are first time match, min to max row
+    # Each group of first matches is a side
+
+    for col in range(minCol, maxCol+1):
+        matchList = []
+        kprint(gardenMap[:,col])
+        for row in range(minRow, maxRow+1):
+
+            # Get a list of row
+            if col == minCol:
+                # Don't have to check previous col in first col
+                if gardenMap[row,col] == plant and (row,col) in plantGroup:
+                    matchList.append(row)
+            else:
+                # Make this this is a first time plant match
+                if gardenMap[row,col] == plant and (row,col) in plantGroup and gardenMap[row,col-1] != plant:
+                    matchList.append(row)
+
+        # Figure out how many groups we have in the match list
+        side = getGroups(matchList)
+        kprint("side: ",side)
+        sides = sides + side
+
+    for col in range(maxCol, minCol-1,-1):
+        matchList = []
+        kprint(gardenMap[:,col])
+
+        for row in range(minRow, maxRow+1):
+            # Get a list of cols
+            if col == maxCol:
+                # Don't have to check previous row in first row
+                if gardenMap[row,col] == plant and (row,col) in plantGroup:
+                    matchList.append(row)
+            else:
+                # Make this this is a first time plant match
+                if gardenMap[row,col] == plant and (row,col) in plantGroup and gardenMap[row,col+1] != plant:
+                    matchList.append(row)
+
+        # Figure out how many groups we have in the match list
+        side = getGroups(matchList)
+        kprint("side: ",side)
+        sides = sides + side
+
+    for row in range(minRow, maxRow+1):
+        matchList = []
+        kprint(gardenMap[row,:])
+        for col in range(minCol, maxCol+1):
+
+            # Get a list of col
+            if row == minRow:
+                # Don't have to check previous col in first col
+                if gardenMap[row,col] == plant and (row,col) in plantGroup:
+                    matchList.append(col)
+            else:
+                # Make this this is a first time plant match
+                if gardenMap[row,col] == plant and (row,col) in plantGroup and gardenMap[row-1,col] != plant:
+                    matchList.append(col)
+
+        # Figure out how many groups we have in the match list
+        side = getGroups(matchList)
+        kprint("side: ",side)
+        sides = sides + side
+
+    for row in range(maxRow, minRow-1,-1):
+        matchList = []
+        kprint(gardenMap[row,:])
+        for col in range(minCol, maxCol+1):
+
+            # Get a list of col
+            if row == maxRow:
+                # Don't have to check previous col in first col
+                if gardenMap[row,col] == plant and (row,col) in plantGroup:
+                    matchList.append(col)
+            else:
+                # Make this this is a first time plant match
+                if gardenMap[row,col] == plant and (row,col) in plantGroup and gardenMap[row+1,col] != plant:
+                    matchList.append(col)
+
+        # Figure out how many groups we have in the match list
+        side = getGroups(matchList)
+        kprint("side: ",side)
+        sides = sides + side
+
+    return sides
+
 costTotal = 0
 for plant in plants:
 
@@ -132,16 +250,27 @@ for plant in plants:
 
         # Perform search for this item
         plantGroup = plantSearch(plantLocation)
-        kprint(plantGroup)
+        kprint("plantGroup: ",plantGroup)
 
         # Add to the visited list
         visited = addPlants(visited, plantGroup)
 
         # Get the area and perimeter
         area = len(plantGroup)
-        perimiter = getPerimeter(plantGroup)
+        cost = 0
+        if args.part2:
+            sides = getSides(plantGroup)
+            kprint("sides: ", sides)
+            kprint("area : ", area)
+            cost = area * sides
+        else:
+            perimiter = getPerimeter(plantGroup)
+            cost = area * perimiter
 
-        cost = area * perimiter
+
         costTotal = costTotal + cost
 
 print(costTotal)
+
+# 852334, too high
+# 841934
